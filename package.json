@@ -1,0 +1,24 @@
+{
+  "name": "LDSCallingMatrixAPI",
+  "version": "0.1.0",
+  "description": "Manage LDS callings for Bishoprics",
+  "main": "server.js",
+  "contributors": [
+    "Spencer Quistberg <squistbe@gmail.com>"
+  ],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcrypt-nodejs": "*",
+    "body-parser": "*",
+    "cors": "*",
+    "express": "*",
+    "jsonwebtoken": "*",
+    "mongoose": "*",
+    "morgan": "*",
+    "passport": "*",
+    "passport-jwt": "*",
+    "passport-local": "*
+  }
+}
