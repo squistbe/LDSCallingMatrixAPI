@@ -19,6 +19,6 @@
     "morgan": "*",
     "passport": "*",
     "passport-jwt": "*",
-    "passport-local": "*
+    "passport-local": "*"
   }
 }

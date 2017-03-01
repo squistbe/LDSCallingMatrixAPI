@@ -1,7 +1,12 @@
 var mongoose = require('mongoose');
 var bcrypt   = require('bcrypt-nodejs');
 
+mongoose.Promise = global.Promise;
 var UserSchema = new mongoose.Schema({
+	name: {
+		type: String,
+		required: true
+	},
 	email: {
 		type: String,
 		unique: true,
@@ -15,7 +20,8 @@ var UserSchema = new mongoose.Schema({
 		type: String,
 		enum: ['reader', 'creator', 'editor'],
 		default: 'reader'
-	}
+	},
+	orgId: Number
 
 }, {
 	timestamps: true

@@ -7,7 +7,9 @@ var cors = require('cors');
 
 var router = require('./app/routes');
 
-mongoose.connect(databaseConfig.url);
+// use native Promises
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.MONGODB_URI);
 
 var port = process.env.PORT || 8080;
 app.listen(port);

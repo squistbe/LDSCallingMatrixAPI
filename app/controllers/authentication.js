@@ -1,9 +1,10 @@
 var jwt = require('jsonwebtoken');
 var crypto = require('crypto');
 var User = require('../models/user');
+var authConfig = require('../../config/auth');
 
 function generateToken(user) {
-	return jwt.sign(user, process.env.SECRET_KEY, {
+	return jwt.sign(user, authConfig.secret, {
 		expiresIn: 10080
 	});
 }
@@ -11,6 +12,7 @@ function generateToken(user) {
 function setUserInfo(request) {
 	return {
 		_id: request._id,
+		name: request.name,
 		email: request.email,
 		role: request.role
 	};
@@ -26,18 +28,23 @@ exports.login = function(req, res, next) {
 }
 
 exports.register = function(req, res, next) {
+	var name = req.body.name;
 	var email = req.body.email;
 	var password = req.body.password;
+	var password2 = req.body.password2;
 	var role = req.body.role;
 
+	if(!name) return res.status(422).send({error: 'You must enter a name'});
 	if(!email) return res.status(422).send({error: 'You must enter an email address'});
 	if(!password) return res.status(422).send({error: 'You must enter a password'});
+	if(password !== password2) return res.status(422).send({error: 'Password must match.'})
 
 	User.findOne({email: email}, function(err, existingUser){
 		if(err) return next(err);
 		if(existingUser) return res.status(422).send({error: 'That email address is already in use'});
 
 		var user = new User({
+			name: name,
 			email: email,
 			password: password,
 			role: role
