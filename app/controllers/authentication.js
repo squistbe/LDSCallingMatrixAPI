@@ -31,13 +31,13 @@ exports.register = function(req, res, next) {
 	var name = req.body.name;
 	var email = req.body.email;
 	var password = req.body.password;
-	var password2 = req.body.password2;
+	var confirmPassword = req.body.confirmPassword;
 	var role = req.body.role;
 
 	if(!name) return res.status(422).send({error: 'You must enter a name'});
 	if(!email) return res.status(422).send({error: 'You must enter an email address'});
 	if(!password) return res.status(422).send({error: 'You must enter a password'});
-	if(password !== password2) return res.status(422).send({error: 'Password must match.'})
+	if(password !== confirmPassword) return res.status(422).send({error: 'Password must match.'})
 
 	User.findOne({email: email}, function(err, existingUser){
 		if(err) return next(err);
@@ -63,11 +63,15 @@ exports.register = function(req, res, next) {
 	});
 }
 
+exports.protected = function(req, res){
+		res.send({ content: 'Success'});
+}
+
 exports.roleAuthorization = function(roles) {
 	return function(req, res, next) {
 		var user = req.user;
 
-		User.findById(user._id, function(err, foundUser) {
+		User.findById(user._id).then(function(err, foundUser) {
 			if(err) {
 				res.status(422).json({error: 'No user found.'});
 				return next(err);

@@ -1,4 +1,5 @@
 var AuthenticationController = require('./controllers/authentication'),
+    OrgController = require('./controllers/org'),
     TodoController = require('./controllers/todos'),
     express = require('express'),
     passportService = require('../config/passport'),
@@ -11,6 +12,7 @@ module.exports = function(app) {
 
     var apiRoutes = express.Router(),
         authRoutes = express.Router(),
+        orgRoutes = express.Router(),
         todoRoutes = express.Router();
 
     // Auth Routes
@@ -18,10 +20,15 @@ module.exports = function(app) {
 
     authRoutes.post('/register', AuthenticationController.register);
     authRoutes.post('/login', requireLogin, AuthenticationController.login);
+    authRoutes.get('/protected', requireAuth, AuthenticationController.protected);
 
-    authRoutes.get('/protected', requireAuth, function(req, res){
-        res.send({ content: 'Success'});
-    });
+    // Org Routes
+    apiRoutes.use('/org', orgRoutes);
+
+    orgRoutes.get('/', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), OrgController.getOrgs);
+    orgRoutes.get('/:org_id', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), OrgController.getOrgById);
+    orgRoutes.post('/', requireAuth, OrgController.createOrg);
+    orgRoutes.delete('/', requireAuth, AuthenticationController.roleAuthorization(['editor']), OrgController.deleteOrg);
 
     // Todo Routes
     apiRoutes.use('/todos', todoRoutes);

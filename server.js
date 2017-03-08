@@ -9,7 +9,11 @@ var router = require('./app/routes');
 
 // use native Promises
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI);
+mongoose.connect(process.env.MONGODB_URI, function() {
+  console.log('DB connected');
+}, function(err) {
+  console.log('DB connection error: ' + err);
+});
 
 var port = process.env.PORT || 8080;
 app.listen(port);
