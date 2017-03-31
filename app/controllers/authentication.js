@@ -1,6 +1,7 @@
 var jwt = require('jsonwebtoken');
 var crypto = require('crypto');
 var User = require('../models/user');
+var Unit = require('../models/unit');
 var authConfig = require('../../config/auth');
 
 function generateToken(user) {
@@ -9,12 +10,13 @@ function generateToken(user) {
 	});
 }
 
-function setUserInfo(request) {
+function setUserInfo(user) {
 	return {
-		_id: request._id,
-		name: request.name,
-		email: request.email,
-		role: request.role
+		_id: user._id,
+		name: user.name,
+		email: user.email,
+		role: user.role,
+		unitNumber: user.unitNumber
 	};
 }
 
@@ -71,7 +73,7 @@ exports.roleAuthorization = function(roles) {
 	return function(req, res, next) {
 		var user = req.user;
 
-		User.findById(user._id).then(function(err, foundUser) {
+		User.findById(user._id, function(err, foundUser) {
 			if(err) {
 				res.status(422).json({error: 'No user found.'});
 				return next(err);
@@ -79,8 +81,22 @@ exports.roleAuthorization = function(roles) {
 
 			if(roles.indexOf(foundUser.role) > -1) return next();
 
-			res.status(401).json({error: 'You are not authorized to view this content'});
+			res.status(401).json({error: 'You are not authorized to view this content.'});
 			return next('Unauthorized');
 		});
 	}
+}
+
+exports.unitAuthorization = function(req, res, next) {
+	Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unitFound) {
+		if(err) {
+			res.status(422).json({error: 'No unit found.'});
+			return next(err);
+		}
+
+		if(unitFound && unitFound.ownerId.equals(req.user._id)) return next();
+
+		res.status(401).json({error: 'You are not authorized to upload members.'})
+		return next('Unauthorized');
+	});
 }

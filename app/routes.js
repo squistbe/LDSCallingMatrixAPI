@@ -1,19 +1,23 @@
 var AuthenticationController = require('./controllers/authentication'),
+    UnitController = require('./controllers/unit'),
     OrgController = require('./controllers/org'),
     TodoController = require('./controllers/todos'),
+    UploadController = require('./controllers/upload')
     express = require('express'),
     passportService = require('../config/passport'),
-    passport = require('passport');
+    passport = require('passport'),
+    multer = require('multer');
 
 var requireAuth = passport.authenticate('jwt', {session: false}),
     requireLogin = passport.authenticate('local', {session: false});
 
 module.exports = function(app) {
-
     var apiRoutes = express.Router(),
         authRoutes = express.Router(),
+        unitRoutes = express.Router(),
         orgRoutes = express.Router(),
-        todoRoutes = express.Router();
+        todoRoutes = express.Router(),
+        uploadRoutes = express.Router();
 
     // Auth Routes
     apiRoutes.use('/auth', authRoutes);
@@ -22,22 +26,28 @@ module.exports = function(app) {
     authRoutes.post('/login', requireLogin, AuthenticationController.login);
     authRoutes.get('/protected', requireAuth, AuthenticationController.protected);
 
+    // Unit Routes
+    apiRoutes.use('/unit', unitRoutes);
+
+    unitRoutes.get('/members', requireAuth, AuthenticationController.unitAuthorization, UnitController.getUnitMembers);
+    unitRoutes.get('/households', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), UnitController.getUnitHouseholds);
+    unitRoutes.get('/:unitNumber', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), UnitController.getUnitById);
+    unitRoutes.post('/', requireAuth, UnitController.createUnit);
+    unitRoutes.delete('/', requireAuth, AuthenticationController.roleAuthorization(['editor']), UnitController.deleteUnit);
+
     // Org Routes
     apiRoutes.use('/org', orgRoutes);
 
-    orgRoutes.get('/', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), OrgController.getOrgs);
-    orgRoutes.get('/:org_id', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), OrgController.getOrgById);
-    orgRoutes.post('/', requireAuth, OrgController.createOrg);
-    orgRoutes.delete('/', requireAuth, AuthenticationController.roleAuthorization(['editor']), OrgController.deleteOrg);
+    orgRoutes.get('/', requireAuth, AuthenticationController.unitAuthorization, OrgController.getOrgs);
+    orgRoutes.put('/calling', requireAuth, AuthenticationController.unitAuthorization, OrgController.updateCalling);
+    orgRoutes.put('/calling/member/remove',requireAuth, AuthenticationController.unitAuthorization, OrgController.removeMemberFromCalling);
+    orgRoutes.get('/calling/statuses', requireAuth, AuthenticationController.unitAuthorization, OrgController.getCallingStatuses);
 
-    // Todo Routes
-    apiRoutes.use('/todos', todoRoutes);
+    // Upload Routes
+    apiRoutes.use('/upload', uploadRoutes);
 
-    todoRoutes.get('/', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), TodoController.getTodos);
-    todoRoutes.post('/', requireAuth, AuthenticationController.roleAuthorization(['creator','editor']), TodoController.createTodo);
-    todoRoutes.delete('/:todo_id', requireAuth, AuthenticationController.roleAuthorization(['editor']), TodoController.deleteTodo);
+    uploadRoutes.post('/members',requireAuth, AuthenticationController.unitAuthorization, multer({dest: './uploads/'}).single('file'), UploadController.addMembers);
 
     // Set up routes
     app.use('/api', apiRoutes);
-
 }

@@ -24,7 +24,7 @@ var UserSchema = new mongoose.Schema({
 		enum: ['reader', 'creator', 'editor'],
 		default: 'reader'
 	},
-	orgId: String
+	unitNumber: String
 
 }, {
 	timestamps: true
