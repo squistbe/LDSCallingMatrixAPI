@@ -30,8 +30,6 @@ module.exports = function(app) {
     apiRoutes.use('/unit', unitRoutes);
 
     unitRoutes.get('/members', requireAuth, AuthenticationController.unitAuthorization, UnitController.getUnitMembers);
-    unitRoutes.get('/households', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), UnitController.getUnitHouseholds);
-    unitRoutes.get('/:unitNumber', requireAuth, AuthenticationController.roleAuthorization(['reader','creator','editor']), UnitController.getUnitById);
     unitRoutes.post('/', requireAuth, UnitController.createUnit);
     unitRoutes.delete('/', requireAuth, AuthenticationController.roleAuthorization(['editor']), UnitController.deleteUnit);
 
@@ -42,6 +40,7 @@ module.exports = function(app) {
     orgRoutes.put('/calling', requireAuth, AuthenticationController.unitAuthorization, OrgController.updateCalling);
     orgRoutes.put('/calling/member/remove',requireAuth, AuthenticationController.unitAuthorization, OrgController.removeMemberFromCalling);
     orgRoutes.get('/calling/statuses', requireAuth, AuthenticationController.unitAuthorization, OrgController.getCallingStatuses);
+    orgRoutes.put('/reorder', requireAuth, AuthenticationController.unitAuthorization, OrgController.reorderOrgs);
 
     // Upload Routes
     apiRoutes.use('/upload', uploadRoutes);

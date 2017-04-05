@@ -13,45 +13,20 @@ function setUnitInfo(unit) {
   };
 }
 
-exports.getUnitHouseholds = function(req, res, next) {
-  Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unit) {
-    if (err) res.send(err);
-    res.json(unit.households);
-  });
-}
-
 exports.getUnitMembers = function(req, res, next) {
-  var searchTerm = req.query.searchTerm;
+  var searchTerm = req.query.searchTerm || '';
 
-  Member.find({unitNumber: req.user.unitNumber}, function(err, members) {
+  Member
+  .aggregate([
+    { $match: { unitNumber: req.user.unitNumber } },
+    { $sort: { 'name.last': 1 } },
+    { $project: { name: { $concat: [ '$name.first', ' ', '$name.last' ] }, phone: '$phone', email: '$email' } },
+    { $match: { name: { $regex: searchTerm, $options: 'i' } } }
+  ])
+  .exec(function(err, members) {
     if (err) res.send(err);
 
-    if (searchTerm) {
-      var filterMembers = members.filter(function(member) {
-        return (member.name.first.toLowerCase().indexOf(searchTerm) > -1) || (member.name.last.toLowerCase().indexOf(searchTerm) > -1);
-      });
-      res.json(filterMembers);
-    }
-    else res.json(members);
-  });
-
-  // Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unit) {
-  //   if (err) res.send(err);
-  //
-  //   if (searchTerm) {
-  //     var members = unit.members.filter(function(member) {
-  //       return (member.name.first.toLowerCase().indexOf(searchTerm) > -1) || (member.name.last.toLowerCase().indexOf(searchTerm) > -1);
-  //     });
-  //     res.json(members);
-  //   }
-  //   else res.json(unit.members);
-  // });
-}
-
-exports.getUnitById = function(req, res, next) {
-  Unit.findOne(function(err, units) {
-    if (err) res.send(err);
-    res.json(units);
+    res.json(members);
   });
 }
 
