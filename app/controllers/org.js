@@ -1,23 +1,10 @@
 var Calling = require('../models/calling'),
     Org = require('../models/org'),
     Unit = require('../models/unit'),
-    CallingStatus = require('../models/callingStatus');
-
-function findCalling(unit, data) {
-  var calling;
-
-  unit.orgs.forEach(function(org) {
-    var foundOrg = org._id.equals(data.orgId);
-
-    if (foundOrg) {
-      calling = org.callings.find(function(calling) {
-        return calling._id.equals(data.callingId);
-      });
-    }
-  });
-
-  return calling;
-}
+    CallingStatus = require('../models/callingStatus'),
+    organizations = require('../../config/organizations'),
+    ObjectId = require('mongodb').ObjectId,
+    callingUtils = require('../utils/calling');
 
 function findOrg(unit, orgId) {
   return unit.orgs.find(function(org) {
@@ -70,6 +57,69 @@ exports.getOrgs = function(req, res, next) {
   });
 }
 
+exports.getOrgCallings = function(req, res, next) {
+  var org = organizations.find(function(item) {
+    return item.name === req.query.name;
+  });
+
+  if (org) res.send(org.callings)
+  else res.status(404).send('Organization not found.')
+}
+
+exports.addOrgCalling = function(req, res, next) {
+  var query = {
+        unitNumber: req.user.unitNumber,
+        'orgs._id': ObjectId(req.params.orgId)
+      },
+      newCalling = new Calling({
+        name: req.body.name
+      });
+
+  Unit
+  .findOne(query, {
+    'orgs.$.callings': 1
+  })
+  .exec(function(err, result) {
+    if (err) res.send(err);
+
+    if (result.orgs[0]) {
+      newCalling.sortIndex = result.orgs[0].callings.length;
+      Unit
+      .findOneAndUpdate(query, {
+        $push: {
+          'orgs.$.callings': newCalling
+        }
+      }, {
+        new: true
+      })
+      .exec(function(err, doc) {
+        if (err) res.send(err);
+
+        res.status(201).send(newCalling);
+      });
+    }
+  });
+}
+
+exports.removeOrgCalling = function(req, res, next) {
+  Unit
+  .update({
+    unitNumber: req.user.unitNumber,
+    'orgs._id': ObjectId(req.params.orgId)
+  }, {
+    $pull: {
+      'orgs.$.callings': {
+        _id: ObjectId(req.params.callingId)
+      }
+    }
+  })
+  .exec(function(err, doc) {
+    if (err) res.send(err);
+
+    res.status(204).send();
+  });
+}
+
 exports.reorderOrgs = function(req, res, next) {
 
   Unit
@@ -98,40 +148,67 @@ exports.reorderOrgs = function(req, res, next) {
   });
 }
 
-exports.updateCalling = function(req, res, next) {
-  Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unit) {
+exports.updateOrgCalling = function(req, res, next) {
+  var orgId = req.params.orgId,
+      callingId = req.params.callingId,
+      memberId = req.body.memberId,
+      statusId = req.body.statusId,
+      className = req.body.className;
+
+  Unit
+  .findOne({unitNumber: req.user.unitNumber})
+  .exec(function(err, unit) {
     if (err) res.send(err);
 
-    var calling = findCalling(unit, req.body);
+    var calling = callingUtils.findCalling(unit, {orgId: orgId, callingId: callingId});
 
-    if (req.body.memberId) calling.member = req.body.memberId;
-    if (req.body.statusId) calling.status = req.body.statusId;
+    if (calling) {
+      if (memberId) {
+        if (calling.member) calling.status = undefined;
+        calling.member = memberId;
+      }
+      if (statusId) calling.status = statusId;
+      if (className) calling.className = className;
 
-    unit.save(function(err, unit) {
-      if (err) res.send(err);
-
-      Calling.populate(calling, 'member status', function(err, found) {
+      unit.save(function(err, unit) {
         if (err) res.send(err);
 
-        res.json(found);
-      })
-    });
+        Calling.populate(calling, 'member status', function(err, found) {
+          if (err) res.send(err);
+
+          res.json(found);
+        })
+      });
+    }
+    else res.status(422).send('Calling Not Found');
   });
 }
 
 exports.removeMemberFromCalling = function(req, res, next) {
-  Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unit) {
+  Unit
+  .findOne({
+    unitNumber: req.user.unitNumber,
+    'orgs._id': ObjectId(req.params.orgId),
+    'orgs.callings._id': ObjectId(req.params.callingId)
+  }, {
+    'orgs.$.callings': 1
+  })
+  .exec(function(err, unit) {
     if (err) res.send(err);
 
-    var calling = findCalling(unit, req.body);
-    calling.member = undefined;
-    calling.status = undefined;
+    var calling = unit.orgs[0].callings.find(function(item) {return item._id.equals(req.params.callingId)});
 
-    unit.save(function(err, unit) {
-      if (err) res.send(err);
+    if (calling) {
+      calling.member = undefined;
+      calling.status = undefined;
 
-      res.json(calling);
-    });
+      unit.save(function(err, unit) {
+        if (err) res.send(err);
+
+        res.json(calling);
+      });
+    }
+    else res.status(422).send('Calling Not Found');
   });
 }
 
@@ -147,23 +224,4 @@ exports.getCallingStatuses = function(req, res, next) {
     });
     res.json(statuses);
   });
-}
-
-exports.updateCallingStatus = function(req, res, next) {
-  Unit.findOne({unitNumber: req.user.unitNumber}, function(err, unit) {
-    if (err) res.send(err);
-
-    var calling = findCalling(unit,req.body);
-    calling.status = req.body.statusId;
-
-    unit.save(function(err, unit) {
-      if (err) res.send(err);
-
-      Calling.populate(calling, {path: 'status'}, function(err, found) {
-        if (err) res.send(err);
-
-        res.json(found);
-      });
-    });
-  })
 }

@@ -38,8 +38,8 @@ module.exports = [
     ]
   },
   {
-    "sortIndex": 1,
     "name": "High Priests Group",
+    "sortIndex": 1,
     "callings": [
       {
         "name": "High Priests Group Leader",
@@ -168,6 +168,114 @@ module.exports = [
       {
         "name": "Relief Society Meeting Committee Member",
         "sortIndex": 14
+      }
+    ]
+  },
+  {
+    "name": "Sunday School",
+    "sortIndex": 4,
+    "callings": [
+      {
+        "name": "Sunday School President",
+        "sortIndex": 0
+      },
+      {
+        "name": "Sunday School First Counselor",
+        "sortIndex": 1,
+      },
+      {
+        "name": "Sunday School Second Counselor",
+        "sortIndex": 2
+      },
+      {
+        "name": "Sunday School Secretary",
+        "sortIndex": 3
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 4,
+        "hasClass": true,
+        "className": "Gospel Doctrine"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 5,
+        "hasClass": true,
+        "className": "Gospel Principles"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 6,
+        "hasClass": true,
+        "className": "Marriage and Family Relations"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 7,
+        "hasClass": true,
+        "className": "Missionary Preparation"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 8,
+        "hasClass": true,
+        "className": "Teaching the Gospel"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 9,
+        "hasClass": true,
+        "className": "Temple Preparation"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 10,
+        "hasClass": true,
+        "className": "Temple and Family History"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 11,
+        "hasClass": true,
+        "className": "Course 17"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 12,
+        "hasClass": true,
+        "className": "Course 16"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 13,
+        "hasClass": true,
+        "className": "Course 15"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 14,
+        "hasClass": true,
+        "className": "Course 14"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 15,
+        "hasClass": true,
+        "className": "Course 13"
+      },
+      {
+        "name": "Teacher",
+        "sortIndex": 16,
+        "hasClass": true,
+        "className": "Course 12"
+      },
+      {
+        "name": "Librarian",
+        "sortIndex": 17
+      },
+      {
+        "name": "Assistant Librarian",
+        "sortIndex": 18
       }
     ]
   },
@@ -467,18 +575,18 @@ module.exports = [
         "sortIndex": 5
       },
       {
-        "name": "Primary Teacher",
-        "class": "",
+        "name": "Teacher",
+        "hasClass": true,
         "sortIndex": 6
       },
       {
         "name": "Nursery Leader",
-        "class": "",
+        "hasClass": true,
         "sortIndex": 7
       },
       {
         "name": "Primary Activity Days Leader",
-        "class": "",
+        "hasClass": true,
         "sortIndex": 8
       }
     ]

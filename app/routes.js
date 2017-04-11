@@ -2,7 +2,7 @@ var AuthenticationController = require('./controllers/authentication'),
     UnitController = require('./controllers/unit'),
     OrgController = require('./controllers/org'),
     TodoController = require('./controllers/todos'),
-    UploadController = require('./controllers/upload')
+    UploadController = require('./controllers/upload'),
     express = require('express'),
     passportService = require('../config/passport'),
     passport = require('passport'),
@@ -37,8 +37,11 @@ module.exports = function(app) {
     apiRoutes.use('/org', orgRoutes);
 
     orgRoutes.get('/', requireAuth, AuthenticationController.unitAuthorization, OrgController.getOrgs);
-    orgRoutes.put('/calling', requireAuth, AuthenticationController.unitAuthorization, OrgController.updateCalling);
-    orgRoutes.put('/calling/member/remove',requireAuth, AuthenticationController.unitAuthorization, OrgController.removeMemberFromCalling);
+    orgRoutes.get('/callings', requireAuth, AuthenticationController.unitAuthorization, OrgController.getOrgCallings);
+    orgRoutes.post('/:orgId/calling', requireAuth, AuthenticationController.unitAuthorization, OrgController.addOrgCalling);
+    orgRoutes.put('/:orgId/calling/:callingId', requireAuth, AuthenticationController.unitAuthorization, OrgController.updateOrgCalling);
+    orgRoutes.delete('/:orgId/calling/:callingId', requireAuth, AuthenticationController.unitAuthorization, OrgController.removeOrgCalling);
+    orgRoutes.delete('/:orgId/calling/:callingId/member/:memberId', requireAuth, AuthenticationController.unitAuthorization, OrgController.removeMemberFromCalling);
     orgRoutes.get('/calling/statuses', requireAuth, AuthenticationController.unitAuthorization, OrgController.getCallingStatuses);
     orgRoutes.put('/reorder', requireAuth, AuthenticationController.unitAuthorization, OrgController.reorderOrgs);
 
