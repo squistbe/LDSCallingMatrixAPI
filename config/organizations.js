@@ -575,19 +575,69 @@ module.exports = [
         "sortIndex": 5
       },
       {
-        "name": "Teacher",
+        "name": "Primary Teacher",
         "hasClass": true,
-        "sortIndex": 6
+        "sortIndex": 6,
+        "className": "Valiant 11"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 7,
+        "className": "Valiant 10"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 8,
+        "className": "Valiant 9"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 9,
+        "className": "Valiant 8"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 10,
+        "className": "CTR 7"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 11,
+        "className": "CTR 6"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 12,
+        "className": "CTR 5"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 13,
+        "className": "CTR 4"
+      },
+      {
+        "name": "Primary Teacher",
+        "hasClass": true,
+        "sortIndex": 14,
+        "className": "Sunbeam"
       },
       {
         "name": "Nursery Leader",
         "hasClass": true,
-        "sortIndex": 7
+        "sortIndex": 15,
+        "className": "Nursery"
       },
       {
         "name": "Primary Activity Days Leader",
         "hasClass": true,
-        "sortIndex": 8
+        "sortIndex": 16
       }
     ]
   },

@@ -17,6 +17,7 @@
     "express": "*",
     "fast-csv": "^2.4.0",
     "jsonwebtoken": "*",
+    "lodash": "^4.17.4",
     "mongoose": "*",
     "mongoose-sequence": "^3.1.0",
     "morgan": "*",

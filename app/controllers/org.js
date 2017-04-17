@@ -4,7 +4,8 @@ var Calling = require('../models/calling'),
     CallingStatus = require('../models/callingStatus'),
     organizations = require('../../config/organizations'),
     ObjectId = require('mongodb').ObjectId,
-    callingUtils = require('../utils/calling');
+    callingUtils = require('../utils/calling'),
+    _ = require('lodash');
 
 function findOrg(unit, orgId) {
   return unit.orgs.find(function(org) {
@@ -62,7 +63,38 @@ exports.getOrgCallings = function(req, res, next) {
     return item.name === req.query.name;
   });
 
-  if (org) res.send(org.callings)
+  if (org) {
+    Unit.findOne(
+      {
+        unitNumber: req.user.unitNumber,
+        'orgs.name': req.query.name
+      },
+      {
+        'orgs.$.callings': 1
+      }
+    ).
+    exec(function(err, unit) {
+      if (err) res.send(err);
+
+
+      if (unit.orgs[0]) {
+        var staticOrg = org.callings.map(function(item) {
+              return {
+                name: item.name,
+                className: item.className
+              };
+            }),
+            queriedOrg = unit.orgs[0].callings.map(function(item) {
+              return {
+                name: item.name,
+                className: item.className
+              };
+            });
+
+        res.send(_.sortBy(_.uniqWith(staticOrg.concat(queriedOrg), _.isEqual), ['name', 'className']));
+      }
+    });
+  }
   else res.status(404).send('Organization not found.')
 }
 
@@ -71,9 +103,7 @@ exports.addOrgCalling = function(req, res, next) {
         unitNumber: req.user.unitNumber,
         'orgs._id': ObjectId(req.params.orgId)
       },
-      newCalling = new Calling({
-        name: req.body.name
-      });
+      newCalling = new Calling(req.body);
 
   Unit
   .findOne(query, {
