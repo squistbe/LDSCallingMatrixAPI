@@ -150,7 +150,7 @@ exports.removeOrgCalling = function(req, res, next) {
   });
 }
 
-exports.reorderOrgs = function(req, res, next) {
+exports.reorderCallings = function(req, res, next) {
 
   Unit
   .findOne({unitNumber: req.user.unitNumber})
@@ -158,7 +158,7 @@ exports.reorderOrgs = function(req, res, next) {
   .exec(function(err, unit) {
     if (err) res.send(err);
 
-    var org = findOrg(unit, req.body.orgId);
+    var org = findOrg(unit, req.params.orgId);
 
     // reorder callings and update the sortIndex
     org.callings.splice(req.body.to, 0, org.callings.splice(req.body.from, 1)[0]);

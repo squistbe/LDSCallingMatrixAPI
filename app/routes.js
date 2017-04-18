@@ -43,7 +43,7 @@ module.exports = function(app) {
     orgRoutes.delete('/:orgId/calling/:callingId', requireAuth, AuthenticationController.unitAuthorization, OrgController.removeOrgCalling);
     orgRoutes.delete('/:orgId/calling/:callingId/member/:memberId', requireAuth, AuthenticationController.unitAuthorization, OrgController.removeMemberFromCalling);
     orgRoutes.get('/calling/statuses', requireAuth, AuthenticationController.unitAuthorization, OrgController.getCallingStatuses);
-    orgRoutes.put('/reorder', requireAuth, AuthenticationController.unitAuthorization, OrgController.reorderOrgs);
+    orgRoutes.put('/:orgId/callings/reorder', requireAuth, AuthenticationController.unitAuthorization, OrgController.reorderCallings);
 
     // Upload Routes
     apiRoutes.use('/upload', uploadRoutes);
